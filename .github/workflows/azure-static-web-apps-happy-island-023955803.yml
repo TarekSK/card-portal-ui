@@ -22,8 +22,8 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_HAPPY_ISLAND_023955803 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          azure_static_web_apps_api_token: ${{ e392c98790958fb36db3c4939d2980d493b6e083dbc48eb9185e68955f967f062-aaea32f4-f417-4041-8a0e-e4dbab0c37a2003168471 }}
+          repo_token: ${{ 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 }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
@@ -41,5 +41,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_HAPPY_ISLAND_023955803 }}
+          azure_static_web_apps_api_token: ${{ e392c98790958fb36db3c4939d2980d493b6e083dbc48eb9185e68955f967f062-aaea32f4-f417-4041-8a0e-e4dbab0c37a2003168471 }}
           action: "close"
