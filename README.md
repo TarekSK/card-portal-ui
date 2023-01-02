@@ -1,2 +1,6 @@
-UI For Card Portal API
-React - TypeScript
+# Card Portal UI
+## React
+###### TypeScript
+###### Redux
+###### Router
+###### Tailwind CSS
