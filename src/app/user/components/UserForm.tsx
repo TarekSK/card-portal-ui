@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import ActionTypeEnum from '../../../common/enum/ActionTypeEnum';
 import { UserWriteModel } from '../models/UserWriteModel';
 import * as UserActions from '../redux/UserActions';
-import { BiWindowClose } from 'react-icons/bi';
+import FormModalLayout from '../../../common/components/Form/FormModalLayout';
 
 interface FormProps {
   user: UserWriteModel;
   actionType: ActionTypeEnum;
   isShowModal: boolean;
   setIsShowModal: (isShowModal: boolean) => {};
-  onOK: (isSaved: boolean) => {};
+  reloadData: () => {};
 }
 
 const UserForm = ({
@@ -18,30 +18,8 @@ const UserForm = ({
   actionType,
   isShowModal,
   setIsShowModal,
-  onOK,
+  reloadData,
 }: FormProps) => {
-  // Header
-  const renderedHeader = () => {
-    return (
-      <>
-        <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-          <h3 className="text-xl font-semibold text-blue-600 dark:text-white">
-            User
-          </h3>
-          <button
-            type="button"
-            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-            data-modal-toggle="defaultModal"
-            onClick={() => handleClose()}
-          >
-            <BiWindowClose />
-            <span className="sr-only">Close modal</span>
-          </button>
-        </div>
-      </>
-    );
-  };
-
   // Form
   const renderedForm = () => {
     return (
@@ -66,26 +44,10 @@ const UserForm = ({
             handleSubmit,
             isSubmitting,
           }) => (
-            <form onSubmit={handleSubmit}>
-              <div className="p-6">
+            <form onSubmit={handleSubmit} className="mt-6">
+              <div className="px-6">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Last Name
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values?.firstName!}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="User Name"
-                  required
-                />
-              </div>
-              <div className="p-6">
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  First Name
                 </label>
                 <input
                   type="text"
@@ -99,7 +61,23 @@ const UserForm = ({
                   required
                 />
               </div>
-              <div className="p-6">
+              <div className="px-6 py-4">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values?.firstName!}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="User Name"
+                  required
+                />
+              </div>
+              <div className="px-6 py-4">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   User Name
                 </label>
@@ -116,7 +94,7 @@ const UserForm = ({
                 />
               </div>
 
-              <div className="p-6">
+              <div className="px-6 py-4">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Password
                 </label>
@@ -165,9 +143,10 @@ const UserForm = ({
     } else if (actionType == ActionTypeEnum.Update) {
       await UserActions.updateUser(values);
     }
-    onOK(true);
+    // Reload Data
+    reloadData();
     // Close
-    await setIsShowModal(false);
+    await handleClose();
   };
 
   // Handle Close
@@ -179,17 +158,11 @@ const UserForm = ({
   return (
     <>
       {isShowModal && user && (
-        <div
-          tabIndex={-1}
-          className="fixed top-0 right-0 z-50 bg-slate-300 bg-opauser-50 p-4 overflow-x-hidden overflow-y-auto h-modal md:h-full transition-all flex-auto w-96 from-slate-900 to-blue-600 modal-fade"
-        >
-          <div className="md:h-auto mx-auto w-110 transition-all">
-            <div className="bg-white rounded-lg shadow dark:bg-gray-700">
-              {renderedHeader()}
-              <div className="space-y-6">{renderedForm()}</div>
-            </div>
-          </div>
-        </div>
+        <FormModalLayout
+          headerTitle="User"
+          headerOnClose={handleClose}
+          formContent={renderedForm()}
+        />
       )}
     </>
   );

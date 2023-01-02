@@ -1,16 +1,22 @@
 import { Formik } from 'formik';
 import React, { useState, useEffect } from 'react';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import ActionTypeEnum from '../../../../../common/enum/ActionTypeEnum';
 import { AreaWriteModel } from '../models/AreaWriteModel';
 import * as AreaActions from '../redux/AreaActions';
-import { BiWindowClose } from 'react-icons/bi';
+import DropDownList from '../../../../../common/components/Form/DropDownList';
+import * as cityRedux from '../../city/redux/CityRedux';
+import { CityReadModel } from '../../city/models/CityReadModel';
+import { RootState } from '../../../../../config/redux/RootReducer';
+import FormModalLayout from '../../../../../common/components/Form/FormModalLayout';
+import FormModalFooter from '../../../../../common/components/Form/FormModalFooter';
 
 interface FormProps {
   area: AreaWriteModel;
   actionType: ActionTypeEnum;
   isShowModal: boolean;
   setIsShowModal: (isShowModal: boolean) => {};
-  onOK: (isSaved: boolean) => {};
+  reloadData: () => {};
 }
 
 const AreaForm = ({
@@ -18,29 +24,21 @@ const AreaForm = ({
   actionType,
   isShowModal,
   setIsShowModal,
-  onOK,
+  reloadData,
 }: FormProps) => {
-  // Header
-  const renderedHeader = () => {
-    return (
-      <>
-        <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-          <h3 className="text-xl font-semibold text-blue-600 dark:text-white">
-            Area
-          </h3>
-          <button
-            type="button"
-            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-            data-modal-toggle="defaultModal"
-            onClick={() => handleClose()}
-          >
-            <BiWindowClose />
-            <span className="sr-only">Close modal</span>
-          </button>
-        </div>
-      </>
-    );
-  };
+  // Dispatch
+  let dispatch = useDispatch();
+
+  // City - Get
+  const cityData: CityReadModel[] = useSelector<RootState>(
+    ({ city }) => city.city,
+    shallowEqual,
+  ) as CityReadModel[];
+
+  // City - Get
+  useEffect(() => {
+    dispatch(cityRedux.actions.requestCity());
+  }, []);
 
   // Form
   const renderedForm = () => {
@@ -52,7 +50,7 @@ const AreaForm = ({
             setTimeout(() => {
               // Save
               handleSave(values);
-
+              // Submitting
               setSubmitting(false);
             }, 400);
           }}
@@ -66,7 +64,7 @@ const AreaForm = ({
             handleSubmit,
             isSubmitting,
           }) => (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="mt-6">
               <div className="p-6">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Area Name
@@ -82,25 +80,20 @@ const AreaForm = ({
                   placeholder="Area Name"
                   required
                 />
+                <DropDownList
+                  label="City"
+                  name="cityId"
+                  data={cityData!}
+                  idPropName="id"
+                  valuePropName="name"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values?.cityId!}
+                  required
+                />
                 {errors.name && touched.name && errors.name}
               </div>
-              <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button
-                  data-modal-toggle="defaultModal"
-                  type="submit"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
-                  Save Changes
-                </button>
-                <button
-                  data-modal-toggle="defaultModal"
-                  type="button"
-                  className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                  onClick={() => handleClose()}
-                >
-                  Cancel
-                </button>
-              </div>
+              <FormModalFooter cancelButtonOnClick={handleClose} />
             </form>
           )}
         </Formik>
@@ -116,9 +109,10 @@ const AreaForm = ({
     } else if (actionType == ActionTypeEnum.Update) {
       await AreaActions.updateArea(values);
     }
-    onOK(true);
+    // Reload Data
+    reloadData();
     // Close
-    await setIsShowModal(false);
+    await handleClose();
   };
 
   // Handle Close
@@ -130,17 +124,11 @@ const AreaForm = ({
   return (
     <>
       {isShowModal && area && (
-        <div
-          tabIndex={-1}
-          className="fixed top-0 right-0 z-50 bg-slate-300 bg-opaarea-50 p-4 overflow-x-hidden overflow-y-auto h-modal md:h-full transition-all flex-auto w-96 from-slate-900 to-blue-600 modal-fade"
-        >
-          <div className="md:h-auto mx-auto w-110 transition-all">
-            <div className="bg-white rounded-lg shadow dark:bg-gray-700">
-              {renderedHeader()}
-              <div className="space-y-6">{renderedForm()}</div>
-            </div>
-          </div>
-        </div>
+        <FormModalLayout
+          headerTitle="Area"
+          headerOnClose={handleClose}
+          formContent={renderedForm()}
+        />
       )}
     </>
   );

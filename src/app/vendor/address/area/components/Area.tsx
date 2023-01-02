@@ -10,6 +10,9 @@ import { AreaWriteModel } from '../models/AreaWriteModel';
 import * as areaRedux from '../redux/AreaRedux';
 import * as areaActions from '../redux/AreaActions';
 import AreaForm from './AreaForm';
+import DataViewHeader from '../../../../../common/components/DataView/DataViewHeader';
+import DataViewRowActions from '../../../../../common/components/DataView/TableLayout/TableRowActions';
+import Table from '../../../../../common/components/DataView/TableLayout/Table';
 
 // State
 const mapState = (state: RootState) => ({
@@ -22,13 +25,6 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 // Componenet
 const Area: FC<PropsFromRedux> = ({ area }) => {
-  // Default Values
-  const areaDefault: AreaWriteModel = {
-    id: 0,
-    name: '',
-    cityId: 0,
-  };
-
   // Dispatch
   const dispatch = useDispatch();
   // Loading
@@ -37,144 +33,109 @@ const Area: FC<PropsFromRedux> = ({ area }) => {
   const [isShowDataModal, setIsShowDataModal] = useState<boolean>(false);
   // IsShow Delete Modal
   const [isShowDeleteModal, setIsShowDeleteModal] = useState<boolean>(false);
-  // Selected Area
-  const [selectedArea, setSelectedArea] = useState<AreaWriteModel>(areaDefault);
+  // Record Default Values
+  const recordDefaultValues: AreaWriteModel = {
+    id: 0,
+    name: '',
+    cityId: 0,
+  };
+  // Selected Record
+  const [selectedRecord, setSelectedRecord] =
+    useState<AreaWriteModel>(recordDefaultValues);
   // Action Type
   const [actionType, SetActionType] = useState<ActionTypeEnum>(
     ActionTypeEnum.Create,
   );
 
   useEffect(() => {
-    dispatch(areaRedux.actions.requestArea());
+    // Data - Get
+    dataGet();
   }, []);
 
-  // Actions
-  const action = async (area: AreaWriteModel, actionType: ActionTypeEnum) => {
-    // Selected Area - Set
-    await setSelectedArea(area);
-    // Action Type - Set
-    await SetActionType(actionType);
-    // Show Data Modal
-    await setIsShowDataModal(true);
-  };
-
-  // Handle Create Click
-  const handleCreateClick = async () => {
-    // Create
-    action(areaDefault, ActionTypeEnum.Create);
-  };
-
-  // Handle Edit Click
-  const handleEditClick = async (area: AreaWriteModel) => {
-    // Create
-    action(area, ActionTypeEnum.Update);
-  };
-
-  // Handle Form Save
-  const handleFormSave = (isSaved: boolean) => {
-    // Load Area Data
-    dispatch(areaRedux.actions.requestArea());
-    return 0;
-  };
-
-  // Handle Delete Click
-  const handleDeleteClick = async (area: AreaWriteModel) => {
-    // Selected Area - Set
-    await setSelectedArea(area);
-
-    // Show Delete Modal
-    await setIsShowDeleteModal(true);
+  // Data - Get
+  const dataGet = async () => {
+    await dispatch(areaRedux.actions.requestArea());
   };
 
   // Handle Delete
-  const handleDelete = async (isDelete: boolean) => {
+  const onDelete = async (isDelete: boolean) => {
     if (isDelete) {
-      console.log('delete .............');
       // Delete
-      await areaActions.deleteArea(selectedArea);
-      // Load Area Data
-      dispatch(areaRedux.actions.requestArea());
+      await areaActions.deleteArea(selectedRecord);
+      // Data - Get
+      await dataGet();
     }
+  };
+
+  // Handle Action
+  // [Create, Update, Delete]
+  const handleAction = async (
+    actionType: ActionTypeEnum,
+    data: AreaWriteModel,
+  ) => {
+    // Selected Record - Set
+    await setSelectedRecord(data);
+
+    // Action Type - Set
+    await SetActionType(actionType);
+
+    if (
+      actionType == ActionTypeEnum.Create ||
+      actionType == ActionTypeEnum.Update
+    ) {
+      // Show Data Modal
+      await setIsShowDataModal(true);
+    } else if (actionType == ActionTypeEnum.Delete) {
+      // Show Delete Modal
+      await setIsShowDeleteModal(true);
+    }
+  };
+
+  // Handle Create
+  const handleCreate = async () => {
+    handleAction(ActionTypeEnum.Create, recordDefaultValues);
+  };
+  // Handle Edit
+  const handleEdit = async (data: AreaWriteModel) => {
+    handleAction(ActionTypeEnum.Update, data);
+  };
+  // Handle Delete
+  const handleDelete = async (data: AreaWriteModel) => {
+    handleAction(ActionTypeEnum.Delete, data);
   };
 
   return (
     <div className="flex-auto w-96">
-      <div className="m-3 shadow flex p-3 px-4 font-semibold text-blue-600 dark:text-white bg-slate-50 rounded">
-        <h2 className="text-2xl flex-none ">Areas</h2>
-        <div className="ml-auto">
-          <button
-            className="p-3 ml-2 rounded text-slate-600 hover:text-blue-600 hover:bg-slate-200"
-            onClick={() => {
-              handleCreateClick();
-            }}
-          >
-            <GoPlus />
-          </button>
-        </div>
-      </div>
+      <DataViewHeader title="Areas" onCreate={handleCreate} />
       <Loader loading={loading}>
         {area.area && (
-          <div className="overflow-x-auto relative rounded shadow p-3 m-3 bg-slate-50">
-            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-gray-300 rounded">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                  <th scope="col" className="py-3 px-6">
-                    #
-                  </th>
-                  <th scope="col" className="py-3 px-6">
-                    Name
-                  </th>
-                  <th scope="col" className="py-3 px-6">
-                    <span className="sr-only">Edit</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {area.area?.map((area) => (
-                  <tr
-                    key={area.id}
-                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                  >
-                    <td className="py-4 px-6">{area.id}</td>
-                    <td className="py-4 px-6">{area.name}</td>
-                    <td className=" text-right px-6 transition-colors">
-                      <button
-                        className="p-3 ml-2 rounded text-slate-600 hover:text-blue-600 hover:bg-slate-200"
-                        onClick={async () => await handleEditClick(area)}
-                      >
-                        <FiEdit />
-                      </button>
-                      <button
-                        className="p-3 ml-2 rounded text-slate-600 hover:text-red-600 hover:bg-slate-200"
-                        onClick={async () => await handleDeleteClick(area)}
-                      >
-                        <GoX />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table
+            data={area.area as any}
+            idColumn="id"
+            columnsDisplay={['id', 'name']}
+            columnsHeaders={['#', 'name', '']}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         )}
       </Loader>
       <AreaForm
-        area={selectedArea}
+        area={selectedRecord}
         actionType={actionType}
         isShowModal={isShowDataModal}
         setIsShowModal={async (isShowDataModal) =>
           setIsShowDataModal(isShowDataModal)
         }
-        onOK={(isSaved: boolean) => handleFormSave(isSaved)}
+        reloadData={dataGet}
       />
       <DeleteConfirmModal
         title="Area"
-        recordText={selectedArea.name}
+        recordText={selectedRecord.name}
         isShowModal={isShowDeleteModal}
         setIsShowModal={async (isShowDeleteModal) =>
           setIsShowDeleteModal(isShowDeleteModal)
         }
-        onOK={async (isDelete: boolean) => handleDelete(isDelete)}
+        onOK={async (isDelete: boolean) => onDelete(isDelete)}
       />
     </div>
   );

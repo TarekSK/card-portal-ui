@@ -1,6 +1,4 @@
 import React, { FC, useEffect, useState } from 'react';
-import { FiEdit } from 'react-icons/fi';
-import { GoPlus, GoX } from 'react-icons/go';
 import { connect, ConnectedProps, useDispatch } from 'react-redux';
 import DeleteConfirmModal from '../../../../../common/components/DeleteConfirmModal';
 import { Loader } from '../../../../../common/components/Loader';
@@ -10,6 +8,8 @@ import { ContactTypeWriteModel } from '../models/ContactTypeWriteModel';
 import * as contactTypeRedux from '../redux/ContactTypeRedux';
 import * as contactTypeActions from '../redux/ContactTypeActions';
 import ContactTypeForm from './ContactTypeForm';
+import DataViewHeader from '../../../../../common/components/DataView/DataViewHeader';
+import Table from '../../../../../common/components/DataView/TableLayout/Table';
 
 // State
 const mapState = (state: RootState) => ({
@@ -22,12 +22,6 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 // Componenet
 const ContactType: FC<PropsFromRedux> = ({ contactType }) => {
-  // Default Values
-  const contactTypeDefault: ContactTypeWriteModel = {
-    id: 0,
-    name: '',
-  };
-
   // Dispatch
   const dispatch = useDispatch();
   // Loading
@@ -36,150 +30,108 @@ const ContactType: FC<PropsFromRedux> = ({ contactType }) => {
   const [isShowDataModal, setIsShowDataModal] = useState<boolean>(false);
   // IsShow Delete Modal
   const [isShowDeleteModal, setIsShowDeleteModal] = useState<boolean>(false);
-  // Selected ContactType
-  const [selectedContactType, setSelectedContactType] =
-    useState<ContactTypeWriteModel>(contactTypeDefault);
+  // Record Default Values
+  const recordDefaultValues: ContactTypeWriteModel = {
+    id: 0,
+    name: '',
+  };
+  // Selected Record
+  const [selectedRecord, setSelectedRecord] =
+    useState<ContactTypeWriteModel>(recordDefaultValues);
   // Action Type
   const [actionType, SetActionType] = useState<ActionTypeEnum>(
     ActionTypeEnum.Create,
   );
 
   useEffect(() => {
-    dispatch(contactTypeRedux.actions.requestContactType());
+    // Data - Get
+    dataGet();
   }, []);
 
-  // Actions
-  const action = async (
-    contacttype: ContactTypeWriteModel,
-    actionType: ActionTypeEnum,
-  ) => {
-    // Selected ContactType - Set
-    await setSelectedContactType(contacttype);
-    // Action Type - Set
-    await SetActionType(actionType);
-    // Show Data Modal
-    await setIsShowDataModal(true);
-  };
-
-  // Handle Create Click
-  const handleCreateClick = async () => {
-    // Create
-    action(contactTypeDefault, ActionTypeEnum.Create);
-  };
-
-  // Handle Edit Click
-  const handleEditClick = async (contacttype: ContactTypeWriteModel) => {
-    // Create
-    action(contacttype, ActionTypeEnum.Update);
-  };
-
-  // Handle Form Save
-  const handleFormSave = (isSaved: boolean) => {
-    // Load ContactType Data
-    dispatch(contactTypeRedux.actions.requestContactType());
-    return 0;
-  };
-
-  // Handle Delete Click
-  const handleDeleteClick = async (contacttype: ContactTypeWriteModel) => {
-    // Selected ContactType - Set
-    await setSelectedContactType(contacttype);
-
-    // Show Delete Modal
-    await setIsShowDeleteModal(true);
+  // Data - Get
+  const dataGet = async () => {
+    await dispatch(contactTypeRedux.actions.requestContactType());
   };
 
   // Handle Delete
-  const handleDelete = async (isDelete: boolean) => {
+  const onDelete = async (isDelete: boolean) => {
     if (isDelete) {
-      console.log('delete .............');
       // Delete
-      await contactTypeActions.deleteContactType(selectedContactType);
-      // Load ContactType Data
-      dispatch(contactTypeRedux.actions.requestContactType());
+      await contactTypeActions.deleteContactType(selectedRecord);
+      // Data - Get
+      await dataGet();
     }
+  };
+
+  // Handle Action
+  // [Create, Update, Delete]
+  const handleAction = async (
+    actionType: ActionTypeEnum,
+    data: ContactTypeWriteModel,
+  ) => {
+    // Selected Record - Set
+    await setSelectedRecord(data);
+
+    // Action Type - Set
+    await SetActionType(actionType);
+
+    if (
+      actionType == ActionTypeEnum.Create ||
+      actionType == ActionTypeEnum.Update
+    ) {
+      // Show Data Modal
+      await setIsShowDataModal(true);
+    } else if (actionType == ActionTypeEnum.Delete) {
+      // Show Delete Modal
+      await setIsShowDeleteModal(true);
+    }
+  };
+
+  // Handle Create
+  const handleCreate = async () => {
+    handleAction(ActionTypeEnum.Create, recordDefaultValues);
+  };
+  // Handle Edit
+  const handleEdit = async (data: ContactTypeWriteModel) => {
+    handleAction(ActionTypeEnum.Update, data);
+  };
+  // Handle Delete
+  const handleDelete = async (data: ContactTypeWriteModel) => {
+    handleAction(ActionTypeEnum.Delete, data);
   };
 
   return (
     <div className="flex-auto w-96">
-      <div className="m-3 shadow flex p-3 px-4 font-semibold text-blue-600 dark:text-white bg-slate-50 rounded">
-        <h2 className="text-2xl flex-none ">Contact Types</h2>
-        <div className="ml-auto">
-          <button
-            className="p-3 ml-2 rounded text-slate-600 hover:text-blue-600 hover:bg-slate-200"
-            onClick={() => {
-              handleCreateClick();
-            }}
-          >
-            <GoPlus />
-          </button>
-        </div>
-      </div>
+      <DataViewHeader title="Contact Types" onCreate={handleCreate} />
       <Loader loading={loading}>
         {contactType.contactType && (
-          <div className="overflow-x-auto relative rounded shadow p-3 m-3 bg-slate-50">
-            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-gray-300 rounded">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                  <th scope="col" className="py-3 px-6">
-                    #
-                  </th>
-                  <th scope="col" className="py-3 px-6">
-                    Contact Type
-                  </th>
-                  <th scope="col" className="py-3 px-6">
-                    <span className="sr-only">Edit</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {contactType.contactType?.map((contactType) => (
-                  <tr
-                    key={contactType.id}
-                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                  >
-                    <td className="py-4 px-6">{contactType.id}</td>
-                    <td className="py-4 px-6">{contactType.name}</td>
-                    <td className=" text-right px-6 transition-colors">
-                      <button
-                        className="p-3 ml-2 rounded text-slate-600 hover:text-blue-600 hover:bg-slate-200"
-                        onClick={async () => await handleEditClick(contactType)}
-                      >
-                        <FiEdit />
-                      </button>
-                      <button
-                        className="p-3 ml-2 rounded text-slate-600 hover:text-red-600 hover:bg-slate-200"
-                        onClick={async () =>
-                          await handleDeleteClick(contactType)
-                        }
-                      >
-                        <GoX />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table
+            data={contactType.contactType as any}
+            idColumn="id"
+            columnsDisplay={['id', 'name']}
+            columnsHeaders={['#', 'name', '']}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         )}
       </Loader>
       <ContactTypeForm
-        contacttype={selectedContactType}
+        contactType={selectedRecord}
         actionType={actionType}
         isShowModal={isShowDataModal}
         setIsShowModal={async (isShowDataModal) =>
           setIsShowDataModal(isShowDataModal)
         }
-        onOK={(isSaved: boolean) => handleFormSave(isSaved)}
+        reloadData={dataGet}
       />
       <DeleteConfirmModal
         title="Contact Type"
-        recordText={selectedContactType.name}
+        recordText={selectedRecord.name}
         isShowModal={isShowDeleteModal}
         setIsShowModal={async (isShowDeleteModal) =>
           setIsShowDeleteModal(isShowDeleteModal)
         }
-        onOK={async (isDelete: boolean) => handleDelete(isDelete)}
+        onOK={async (isDelete: boolean) => onDelete(isDelete)}
       />
     </div>
   );

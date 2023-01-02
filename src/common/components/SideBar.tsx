@@ -73,7 +73,7 @@ export default function Sidebar() {
 
             <li>
               <Link
-                to="/transaction"
+                to="/vendor"
                 className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-50 text-white hover:text-gray-800 border-l-4 border-transparent hover:border-sky-600 pr-6 transition-all"
               >
                 <span className="inline-flex justify-center items-center ml-4">
@@ -153,20 +153,6 @@ export default function Sidebar() {
                 </span>
                 <span className="ml-3 text-sm tracking-wide truncate">
                   Areas
-                </span>
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                to="/logout"
-                className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-50 text-white hover:text-gray-800 border-l-4 border-transparent hover:border-sky-600 pr-6 transition"
-              >
-                <span className="inline-flex justify-center items-center ml-4">
-                  <FiLogOut />
-                </span>
-                <span className="ml-3 text-sm tracking-wide truncate">
-                  Logout
                 </span>
               </Link>
             </li>

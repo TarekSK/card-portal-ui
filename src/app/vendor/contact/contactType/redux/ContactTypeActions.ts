@@ -13,7 +13,7 @@ export const CREATE_CONTACT_TYPE = `${API_URL}/CreateContactType`;
 export const UPDATE_CONTACT_TYPE = `${API_URL}/UpdateContactType`;
 export const DELETE_CONTACT_TYPE = `${API_URL}/DeleteContactType`;
 
-// Get All Citites
+// Get All ContactTypes
 export const getAllContactTypes = async () => {
   let response = await axiosAgent.requests.get<
     ServiceResponse<ContactTypeReadModel[]>

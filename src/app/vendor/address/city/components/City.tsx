@@ -10,6 +10,9 @@ import { CityWriteModel } from '../models/CityWriteModel';
 import * as cityRedux from '../redux/CityRedux';
 import * as cityActions from '../redux/CityActions';
 import CityForm from './CityForm';
+import DataViewHeader from '../../../../../common/components/DataView/DataViewHeader';
+import DataViewRowActions from '../../../../../common/components/DataView/TableLayout/TableRowActions';
+import Table from '../../../../../common/components/DataView/TableLayout/Table';
 
 // State
 const mapState = (state: RootState) => ({
@@ -22,12 +25,6 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 // Componenet
 const City: FC<PropsFromRedux> = ({ city }) => {
-  // Default Values
-  const cityDefault: CityWriteModel = {
-    id: 0,
-    name: '',
-  };
-
   // Dispatch
   const dispatch = useDispatch();
   // Loading
@@ -36,144 +33,108 @@ const City: FC<PropsFromRedux> = ({ city }) => {
   const [isShowDataModal, setIsShowDataModal] = useState<boolean>(false);
   // IsShow Delete Modal
   const [isShowDeleteModal, setIsShowDeleteModal] = useState<boolean>(false);
-  // Selected City
-  const [selectedCity, setSelectedCity] = useState<CityWriteModel>(cityDefault);
+  // Record Default Values
+  const recordDefaultValues: CityWriteModel = {
+    id: 0,
+    name: '',
+  };
+  // Selected Record
+  const [selectedRecord, setSelectedRecord] =
+    useState<CityWriteModel>(recordDefaultValues);
   // Action Type
   const [actionType, SetActionType] = useState<ActionTypeEnum>(
     ActionTypeEnum.Create,
   );
 
   useEffect(() => {
-    dispatch(cityRedux.actions.requestCity());
+    // Data - Get
+    dataGet();
   }, []);
 
-  // Actions
-  const action = async (city: CityWriteModel, actionType: ActionTypeEnum) => {
-    // Selected City - Set
-    await setSelectedCity(city);
-    // Action Type - Set
-    await SetActionType(actionType);
-    // Show Data Modal
-    await setIsShowDataModal(true);
-  };
-
-  // Handle Create Click
-  const handleCreateClick = async () => {
-    // Create
-    action(cityDefault, ActionTypeEnum.Create);
-  };
-
-  // Handle Edit Click
-  const handleEditClick = async (city: CityWriteModel) => {
-    // Create
-    action(city, ActionTypeEnum.Update);
-  };
-
-  // Handle Form Save
-  const handleFormSave = (isSaved: boolean) => {
-    // Load City Data
-    dispatch(cityRedux.actions.requestCity());
-    return 0;
-  };
-
-  // Handle Delete Click
-  const handleDeleteClick = async (city: CityWriteModel) => {
-    // Selected City - Set
-    await setSelectedCity(city);
-
-    // Show Delete Modal
-    await setIsShowDeleteModal(true);
+  // Data - Get
+  const dataGet = async () => {
+    await dispatch(cityRedux.actions.requestCity());
   };
 
   // Handle Delete
-  const handleDelete = async (isDelete: boolean) => {
+  const onDelete = async (isDelete: boolean) => {
     if (isDelete) {
-      console.log('delete .............');
       // Delete
-      await cityActions.deleteCity(selectedCity);
-      // Load City Data
-      dispatch(cityRedux.actions.requestCity());
+      await cityActions.deleteCity(selectedRecord);
+      // Data - Get
+      await dataGet();
     }
+  };
+
+  // Handle Action
+  // [Create, Update, Delete]
+  const handleAction = async (
+    actionType: ActionTypeEnum,
+    data: CityWriteModel,
+  ) => {
+    // Selected Record - Set
+    await setSelectedRecord(data);
+
+    // Action Type - Set
+    await SetActionType(actionType);
+
+    if (
+      actionType == ActionTypeEnum.Create ||
+      actionType == ActionTypeEnum.Update
+    ) {
+      // Show Data Modal
+      await setIsShowDataModal(true);
+    } else if (actionType == ActionTypeEnum.Delete) {
+      // Show Delete Modal
+      await setIsShowDeleteModal(true);
+    }
+  };
+
+  // Handle Create
+  const handleCreate = async () => {
+    handleAction(ActionTypeEnum.Create, recordDefaultValues);
+  };
+  // Handle Edit
+  const handleEdit = async (data: CityWriteModel) => {
+    handleAction(ActionTypeEnum.Update, data);
+  };
+  // Handle Delete
+  const handleDelete = async (data: CityWriteModel) => {
+    handleAction(ActionTypeEnum.Delete, data);
   };
 
   return (
     <div className="flex-auto w-96">
-      <div className="m-3 shadow flex p-3 px-4 font-semibold text-blue-600 dark:text-white bg-slate-50 rounded">
-        <h2 className="text-2xl flex-none ">Cities</h2>
-        <div className="ml-auto">
-          <button
-            className="p-3 ml-2 rounded text-slate-600 hover:text-blue-600 hover:bg-slate-200"
-            onClick={() => {
-              handleCreateClick();
-            }}
-          >
-            <GoPlus />
-          </button>
-        </div>
-      </div>
+      <DataViewHeader title="Cities" onCreate={handleCreate} />
       <Loader loading={loading}>
         {city.city && (
-          <div className="overflow-x-auto relative rounded shadow p-3 m-3 bg-slate-50">
-            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 border-gray-300 rounded">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                  <th scope="col" className="py-3 px-6">
-                    #
-                  </th>
-                  <th scope="col" className="py-3 px-6">
-                    Name
-                  </th>
-                  <th scope="col" className="py-3 px-6">
-                    <span className="sr-only">Edit</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {city.city?.map((city) => (
-                  <tr
-                    key={city.id}
-                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                  >
-                    <td className="py-4 px-6">{city.id}</td>
-                    <td className="py-4 px-6">{city.name}</td>
-                    <td className=" text-right px-6 transition-colors">
-                      <button
-                        className="p-3 ml-2 rounded text-slate-600 hover:text-blue-600 hover:bg-slate-200"
-                        onClick={async () => await handleEditClick(city)}
-                      >
-                        <FiEdit />
-                      </button>
-                      <button
-                        className="p-3 ml-2 rounded text-slate-600 hover:text-red-600 hover:bg-slate-200"
-                        onClick={async () => await handleDeleteClick(city)}
-                      >
-                        <GoX />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table
+            data={city.city as any}
+            idColumn="id"
+            columnsDisplay={['id', 'name']}
+            columnsHeaders={['#', 'name', '']}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         )}
       </Loader>
       <CityForm
-        city={selectedCity}
+        city={selectedRecord}
         actionType={actionType}
         isShowModal={isShowDataModal}
         setIsShowModal={async (isShowDataModal) =>
           setIsShowDataModal(isShowDataModal)
         }
-        onOK={(isSaved: boolean) => handleFormSave(isSaved)}
+        reloadData={dataGet}
       />
       <DeleteConfirmModal
         title="City"
-        recordText={selectedCity.name}
+        recordText={selectedRecord.name}
         isShowModal={isShowDeleteModal}
         setIsShowModal={async (isShowDeleteModal) =>
           setIsShowDeleteModal(isShowDeleteModal)
         }
-        onOK={async (isDelete: boolean) => handleDelete(isDelete)}
+        onOK={async (isDelete: boolean) => onDelete(isDelete)}
       />
     </div>
   );

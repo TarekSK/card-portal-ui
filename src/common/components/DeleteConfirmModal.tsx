@@ -1,5 +1,5 @@
 import React from 'react';
-import { BiWindowClose } from 'react-icons/bi';
+import { AiOutlineWarning } from 'react-icons/ai';
 
 interface Props {
   title: string;
@@ -34,64 +34,53 @@ const DeleteConfirmModal = ({
   return (
     <>
       {isShowModal && (
-        <div>
+        <>
           <div
-            tabIndex={-1}
-            className="
-                fixed 
-                top-0 
-                right-0 
-                z-50 
-                bg-slate-300
-                bg-opacity-50
-                p-4 
-                overflow-x-hidden 
-                overflow-y-auto 
-                h-modal 
-                md:h-full 
-                transition-all
-                flex-auto
-                w-96
-                from-slate-900 to-blue-600
-                modal-fade"
+            className="relative z-10"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
           >
-            <div className="md:h-auto mx-auto w-110 transition-all">
-              <div className="bg-white rounded-lg shadow dark:bg-gray-700">
-                <div className="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    {title}
-                  </h3>
-                  <button
-                    type="button"
-                    className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                    data-modal-toggle="defaultModal"
-                    onClick={() => handleClose()}
-                  >
-                    <BiWindowClose />
-                    <span className="sr-only">Close modal</span>
-                  </button>
-                </div>
-                <div className="space-y-6">
-                  <div className="pl-5 p-3">
-                    Are you sure you want to delete {title} <br />
-                    <span className="font-semibold text-blue-600">
-                      {recordText}
-                    </span>{' '}
-                    ?
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <div className="fixed inset-0 z-10 overflow-y-auto">
+              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <AiOutlineWarning className="h-6 w-6 text-red-600" />
+                      </div>
+                      <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3
+                          className="text-lg font-medium leading-6 text-gray-900"
+                          id="modal-title"
+                        >
+                          {title}
+                        </h3>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Are you sure you want to delete {title}
+                            <span className="font-semibold text-red-600">
+                              {' '}
+                              {recordText}{' '}
+                            </span>
+                            ?
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                  <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                     <button
-                      data-modal-toggle="defaultModal"
                       type="button"
-                      className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      className="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
                       onClick={() => handleOK()}
                     >
                       Delete
                     </button>
                     <button
-                      data-modal-toggle="defaultModal"
                       type="button"
-                      className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                      className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                       onClick={() => handleClose()}
                     >
                       Cancel
@@ -101,7 +90,7 @@ const DeleteConfirmModal = ({
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );
