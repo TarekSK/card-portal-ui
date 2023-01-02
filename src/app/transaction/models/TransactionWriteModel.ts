@@ -2,7 +2,7 @@ import TransactionTypeEnum from '../enum/TransactionTypeEnum';
 
 export interface TransactionWriteModel {
   id: number;
-  date: Date;
+  date: string;
   amount: number;
   type: TransactionTypeEnum;
   cardNumber: string;

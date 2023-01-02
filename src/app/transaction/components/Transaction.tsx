@@ -34,7 +34,7 @@ const Transaction: FC<PropsFromRedux> = ({ transaction }) => {
     id: 0,
     cardNumber: '',
     amount: 0,
-    date: new Date(),
+    date: new Date().toISOString().slice(0, 10),
     type: TransactionTypeEnum.Normal,
     userId: 0,
     vendorId: 0,
@@ -86,8 +86,25 @@ const Transaction: FC<PropsFromRedux> = ({ transaction }) => {
           <Table
             data={transaction.transaction as any}
             idColumn="id"
-            columnsDisplay={['id', 'name']}
-            columnsHeaders={['#', 'name', '']}
+            columnsDisplay={[
+              'id',
+              'date',
+              'amount',
+              'type',
+              'cardNumber',
+              'vendorId',
+              'userId',
+            ]}
+            columnsHeaders={[
+              '#',
+              'Date',
+              'Amount',
+              'Type',
+              'Card Number',
+              'Vendor',
+              'User',
+              '',
+            ]}
             isEdit={false}
             onEdit={undefined}
             isDelete={false}
